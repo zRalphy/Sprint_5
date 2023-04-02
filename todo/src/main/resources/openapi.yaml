@@ -1,0 +1,342 @@
+openapi: 3.0.0
+info:
+  title: Todo API
+  version: 1.0.0
+servers:
+- url: /
+tags:
+- name: tasks
+- name: users
+paths:
+  /task:
+    get:
+      operationId: listTasks
+      parameters:
+      - explode: false
+        in: header
+        name: userId
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskListResponse'
+          description: Tasks list
+      summary: List all the tasks for a user
+      tags:
+      - tasks
+      x-accepts: application/json
+      x-tags:
+      - tag: tasks
+    post:
+      operationId: createTask
+      parameters:
+      - explode: false
+        in: header
+        name: userId
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskCreateRequest'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskResponse'
+          description: Task created
+        "401":
+          description: Access token is missing or invalid
+      summary: Creates new task
+      tags:
+      - tasks
+      x-content-type: application/json
+      x-accepts: application/json
+      x-tags:
+      - tag: tasks
+  /task/{taskId}:
+    delete:
+      operationId: deleteTask
+      parameters:
+      - explode: false
+        in: header
+        name: userId
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: Task identifier
+        explode: false
+        in: path
+        name: taskId
+        required: true
+        schema:
+          format: uuid
+          type: string
+        style: simple
+      responses:
+        "204":
+          description: Task deleted
+        "401":
+          description: Access token is missing or invalid
+        "403":
+          description: Resource is forbidden
+        "404":
+          description: Resource not found
+      summary: Deletes the task
+      tags:
+      - tasks
+      x-accepts: application/json
+      x-tags:
+      - tag: tasks
+    get:
+      operationId: getTask
+      parameters:
+      - explode: false
+        in: header
+        name: userId
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: Task identifier
+        explode: false
+        in: path
+        name: taskId
+        required: true
+        schema:
+          format: uuid
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskResponse'
+          description: Task details
+        "401":
+          description: Access token is missing or invalid
+        "403":
+          description: Resource is forbidden
+        "404":
+          description: Resource not found
+      summary: Returns task
+      tags:
+      - tasks
+      x-accepts: application/json
+      x-tags:
+      - tag: tasks
+    put:
+      operationId: updateTask
+      parameters:
+      - explode: false
+        in: header
+        name: userId
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: Task identifier
+        explode: false
+        in: path
+        name: taskId
+        required: true
+        schema:
+          format: uuid
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskUpdateRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskResponse'
+          description: Updated task
+        "401":
+          description: Access token is missing or invalid
+        "403":
+          description: Resource is forbidden
+        "404":
+          description: Resource not found
+      summary: Updates existing task
+      tags:
+      - tasks
+      x-content-type: application/json
+      x-accepts: application/json
+      x-tags:
+      - tag: tasks
+  /user/login:
+    post:
+      operationId: login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLoginRequest'
+        required: true
+      responses:
+        "200":
+          description: Succesful authentication
+          headers:
+            userId:
+              description: User identifier
+              explode: false
+              schema:
+                type: integer
+              style: simple
+        "400":
+          description: Request body is invalid
+        "401":
+          description: Password in incorrect
+        "404":
+          description: User doesn\'t exists
+      summary: Authenticate the user
+      tags:
+      - users
+      x-content-type: application/json
+      x-accepts: application/json
+      x-tags:
+      - tag: users
+  /user/register:
+    post:
+      operationId: register
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegisterRequest'
+        required: true
+      responses:
+        "200":
+          description: User created
+          headers:
+            userId:
+              description: User identifier
+              explode: false
+              schema:
+                type: integer
+              style: simple
+        "400":
+          description: Request body is invalid
+        "409":
+          description: User already exists
+      summary: Creates new user
+      tags:
+      - users
+      x-content-type: application/json
+      x-accepts: application/json
+      x-tags:
+      - tag: users
+components:
+  responses:
+    UnauthorizedError:
+      description: Access token is missing or invalid
+    ForbiddenError:
+      description: Resource is forbidden
+    NotFoundError:
+      description: Resource not found
+  schemas:
+    UserLoginRequest:
+      example:
+        password: password
+        userName: userName
+      properties:
+        userName:
+          type: string
+        password:
+          type: string
+      required:
+      - password
+      - userName
+      type: object
+    UserRegisterRequest:
+      example:
+        password: password
+        fullName: fullName
+        userName: userName
+      properties:
+        userName:
+          type: string
+        password:
+          type: string
+        fullName:
+          type: string
+      required:
+      - fullName
+      - password
+      - userName
+      type: object
+    TaskCreateRequest:
+      example:
+        dueDate: 2000-01-23
+        name: name
+      properties:
+        name:
+          type: string
+        dueDate:
+          format: date
+          type: string
+      required:
+      - name
+      type: object
+    TaskUpdateRequest:
+      example:
+        dueDate: 2000-01-23
+        name: name
+        id: 0
+        isCompleted: true
+      properties:
+        id:
+          format: int64
+          type: integer
+        name:
+          type: string
+        dueDate:
+          format: date
+          type: string
+        isCompleted:
+          type: boolean
+      type: object
+    TaskListResponse:
+      items:
+        $ref: '#/components/schemas/TaskResponse'
+      type: array
+    TaskResponse:
+      example:
+        dueDate: 2000-01-23
+        name: name
+        id: 58206234
+        isDone: true
+      properties:
+        id:
+          example: 58206234
+          format: int64
+          type: integer
+        name:
+          type: string
+        dueDate:
+          format: date
+          type: string
+        isDone:
+          type: boolean
+      required:
+      - id
+      - name
+      type: object
