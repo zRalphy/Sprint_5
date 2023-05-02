@@ -98,4 +98,27 @@ public interface UserApi {
 
 	}
 
+	/**
+	 * GET /user/info : Get information about user
+	 *
+	 * @return Information about user (status code 200)
+	 * or resources is forbidden (status code 403)
+	 */
+	@Operation(
+			operationId = "info",
+			summary = "Get information about user",
+			tags = {"users"},
+			responses = {
+					@ApiResponse(responseCode = "200", description = "Accepted"),
+					@ApiResponse(responseCode = "403", description = "Resources is forbidden"),
+			}
+	)
+	@RequestMapping(
+			method = RequestMethod.GET,
+			value = "/user/info"
+	)
+	default ResponseEntity<String> getUserInfo() throws ApiException {
+		return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+
+	}
 }

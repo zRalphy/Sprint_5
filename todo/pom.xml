@@ -10,7 +10,7 @@
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <springdoc.version>1.6.14</springdoc.version>
+        <springdoc.version>2.0.4</springdoc.version>
         <swagger-ui.version>4.15.5</swagger-ui.version>
     </properties>
     <parent>
@@ -40,7 +40,7 @@
           <!--SpringDoc dependencies -->
         <dependency>
             <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-ui</artifactId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
             <version>${springdoc.version}</version>
         </dependency>
         <!-- @Nullable annotation -->
@@ -105,6 +105,10 @@
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-oauth2-client</artifactId>
             <version>6.0.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-client</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.security</groupId>

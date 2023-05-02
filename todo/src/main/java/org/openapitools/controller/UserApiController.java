@@ -2,6 +2,7 @@ package org.openapitools.controller;
 
 import jakarta.annotation.Generated;
 
+import java.security.Principal;
 import java.util.Optional;
 
 import org.openapitools.api.ApiException;
@@ -17,6 +18,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -44,18 +47,10 @@ public class UserApiController implements UserApi {
 	}
 
 	@Override
-	@SessionScope
 	public ResponseEntity<Void> login(UserLoginRequest userLoginRequest) throws ApiException {
 		User user = userService.loginUser(userLoginRequest);
-		Authentication authentication = new UsernamePasswordAuthenticationToken(user, user.getPassword());
-		SecurityContext context = SecurityContextHolder.createEmptyContext();
-		context.setAuthentication(authentication);
-
-
 		MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
 		headers.add("userId", String.valueOf(user.getId()));
-		headers.add("cookie", String.valueOf(user.getId()));
-
 		return new ResponseEntity<>(headers, HttpStatus.OK);
 
 	}
@@ -66,5 +61,18 @@ public class UserApiController implements UserApi {
 		MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
 		headers.add("userId", String.valueOf(user.getId()));
 		return new ResponseEntity<>(headers, HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<String> getUserInfo() throws ApiException{
+		Principal token = request.getUserPrincipal();
+		String userName;
+		if(token instanceof OAuth2AuthenticationToken){
+			OAuth2AuthenticationToken defaultToken = (OAuth2AuthenticationToken) request.getUserPrincipal();
+			 userName = defaultToken.getPrincipal().getAttributes().get("name").toString();
+			return new ResponseEntity<> (userName, HttpStatus.OK);
+		} else {
+			throw new ApiException(HttpStatus.FORBIDDEN.value());
+		}
 	}
 }
