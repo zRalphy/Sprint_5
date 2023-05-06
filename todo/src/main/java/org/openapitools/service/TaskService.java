@@ -70,4 +70,14 @@ public class TaskService {
 			throw new ApiException(HttpStatus.NOT_FOUND.value());
 		}
 	}
+
+	public TaskResponse createTaskReminder(UUID taskId) throws ApiException {
+		Optional<Task> existingTask = taskRepository.findTaskById(taskId);
+		if (existingTask.isPresent()) {
+			//And user type GOOGLE
+			return new TaskResponse(UUID.randomUUID(), "test");
+		} else {
+			throw new ApiException(HttpStatus.NOT_FOUND.value());
+		}
+	}
 }

@@ -15,6 +15,7 @@ public class TaskMapper {
 
 	public TaskResponse taskToTaskResponse(Task task) {
 		return new TaskResponse(task.getId(), task.getName())
+				.id(task.getId())
 				.dueDate(task.getDueDate())
 				.isDone(task.isCompleted());
 	}
@@ -23,6 +24,7 @@ public class TaskMapper {
 		List<TaskResponse> taskResponseList = new ArrayList<>();
 		for (Task task : tasks) {
 			TaskResponse taskResponse = new TaskResponse(task.getId(), task.getName())
+					.id(task.getId())
 					.dueDate(task.getDueDate())
 					.isDone(task.isCompleted());
 			taskResponseList.add(taskResponse);

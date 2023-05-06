@@ -18,16 +18,13 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import org.openapitools.api.ApiException;
-import org.openapitools.api.ApiUtil;
 import org.openapitools.model.dto.TaskCreateRequest;
 import org.openapitools.model.dto.TaskResponse;
 import org.openapitools.model.dto.TaskUpdateRequest;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -35,16 +32,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.context.request.NativeWebRequest;
 
 @Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-04-02T20:47:24.972943100+02:00[Europe/Warsaw]")
 @Validated
 @Tag(name = "tasks", description = "the tasks API")
 public interface TaskApi {
-
-	default Optional<NativeWebRequest> getRequest() {
-		return Optional.empty();
-	}
 
 	/**
 	 * POST /task : Creates new task
@@ -74,19 +66,10 @@ public interface TaskApi {
 			consumes = {"application/json"}
 	)
 	default ResponseEntity<TaskResponse> createTask(
-			@NotNull @Parameter(name = "userId", description = "", required = true, in = ParameterIn.HEADER) @RequestHeader(value = "userId", required = true)
-					String userId,
+			@NotNull
+			@Parameter(name = "userId", description = "", required = true, in = ParameterIn.HEADER) @RequestHeader(value = "userId") String userId,
 			@Parameter(name = "TaskCreateRequest", description = "", required = true) @Valid @RequestBody TaskCreateRequest taskCreateRequest)
 			throws ApiException {
-		getRequest().ifPresent(request -> {
-			for (MediaType mediaType : MediaType.parseMediaTypes(request.getHeader("Accept"))) {
-				if (mediaType.isCompatibleWith(MediaType.valueOf("application/json"))) {
-					String exampleString = "{ \"dueDate\" : \"2000-01-23\", \"name\" : \"name\", \"id\" : 58206234, \"isDone\" : true }";
-					ApiUtil.setExampleResponse(request, "application/json", exampleString);
-					break;
-				}
-			}
-		});
 		return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
 	}
 
@@ -118,8 +101,8 @@ public interface TaskApi {
 			value = "/task/{taskId}"
 	)
 	default ResponseEntity<Void> deleteTask(
-			@NotNull @Parameter(name = "userId", description = "", required = true, in = ParameterIn.HEADER) @RequestHeader(value = "userId", required = true)
-					String userId,
+			@NotNull
+			@Parameter(name = "userId", description = "", required = true, in = ParameterIn.HEADER) @RequestHeader(value = "userId") String userId,
 			@Parameter(name = "taskId", description = "Task identifier", required = true, in = ParameterIn.PATH) @PathVariable("taskId") UUID taskId)
 			throws ApiException {
 		return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
@@ -156,19 +139,10 @@ public interface TaskApi {
 			produces = {"application/json"}
 	)
 	default ResponseEntity<TaskResponse> getTask(
-			@NotNull @Parameter(name = "userId", description = "", required = true, in = ParameterIn.HEADER) @RequestHeader(value = "userId", required = true)
-					String userId,
+			@NotNull
+			@Parameter(name = "userId", description = "", required = true, in = ParameterIn.HEADER) @RequestHeader(value = "userId") String userId,
 			@Parameter(name = "taskId", description = "Task identifier", required = true, in = ParameterIn.PATH) @PathVariable("taskId") UUID taskId)
 			throws ApiException {
-		getRequest().ifPresent(request -> {
-			for (MediaType mediaType : MediaType.parseMediaTypes(request.getHeader("Accept"))) {
-				if (mediaType.isCompatibleWith(MediaType.valueOf("application/json"))) {
-					String exampleString = "{ \"dueDate\" : \"2000-01-23\", \"name\" : \"name\", \"id\" : 58206234, \"isDone\" : true }";
-					ApiUtil.setExampleResponse(request, "application/json", exampleString);
-					break;
-				}
-			}
-		});
 		return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
 	}
 
@@ -195,18 +169,8 @@ public interface TaskApi {
 			produces = {"application/json"}
 	)
 	default ResponseEntity<List<TaskResponse>> listTasks(
-			@NotNull @Parameter(name = "userId", description = "", required = true, in = ParameterIn.HEADER) @RequestHeader(value = "userId", required = true)
-					String userId
-	) {
-		getRequest().ifPresent(request -> {
-			for (MediaType mediaType : MediaType.parseMediaTypes(request.getHeader("Accept"))) {
-				if (mediaType.isCompatibleWith(MediaType.valueOf("application/json"))) {
-					String exampleString = "[ { \"dueDate\" : \"2000-01-23\", \"name\" : \"name\", \"id\" : 58206234, \"isDone\" : true }, { \"dueDate\" : \"2000-01-23\", \"name\" : \"name\", \"id\" : 58206234, \"isDone\" : true } ]";
-					ApiUtil.setExampleResponse(request, "application/json", exampleString);
-					break;
-				}
-			}
-		});
+			@NotNull
+			@Parameter(name = "userId", description = "", required = true, in = ParameterIn.HEADER) @RequestHeader(value = "userId") String userId) {
 		return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
 
 	}
@@ -245,20 +209,46 @@ public interface TaskApi {
 			consumes = {"application/json"}
 	)
 	default ResponseEntity<TaskResponse> updateTask(
-			@NotNull @Parameter(name = "userId", description = "", required = true, in = ParameterIn.HEADER) @RequestHeader(value = "userId", required = true)
-					String userId,
+			@NotNull
+			@Parameter(name = "userId", description = "", required = true, in = ParameterIn.HEADER) @RequestHeader(value = "userId") String userId,
 			@Parameter(name = "taskId", description = "Task identifier", required = true, in = ParameterIn.PATH) @PathVariable("taskId") UUID taskId,
 			@Parameter(name = "TaskUpdateRequest", description = "", required = true) @Valid @RequestBody TaskUpdateRequest taskUpdateRequest)
 			throws ApiException {
-		getRequest().ifPresent(request -> {
-			for (MediaType mediaType : MediaType.parseMediaTypes(request.getHeader("Accept"))) {
-				if (mediaType.isCompatibleWith(MediaType.valueOf("application/json"))) {
-					String exampleString = "{ \"dueDate\" : \"2000-01-23\", \"name\" : \"name\", \"id\" : 58206234, \"isDone\" : true }";
-					ApiUtil.setExampleResponse(request, "application/json", exampleString);
-					break;
-				}
+		return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+	}
+
+	/**
+	 * POST /task/{taskId}/reminder : Creates reminder in Google Calendar
+	 *
+	 * @param taskId
+	 * 		Task identifier (required)
+	 * @return Created task (status code 201)
+	 * or Access token is missing or invalid (status code 401)
+	 * or Resource is forbidden (status code 403)
+	 * or Resource not found (status code 404)
+	 */
+	@Operation(
+			operationId = "createReminder",
+			summary = "Creates reminder in Google Calendar",
+			tags = {"tasks"},
+			responses = {
+					@ApiResponse(responseCode = "201", description = "Reminder created", content = {
+							@Content(mediaType = "application/json")
+					}),
+					@ApiResponse(responseCode = "401", description = "Access token is missing or invalid"),
+					@ApiResponse(responseCode = "403", description = "Resource is forbidden"),
+					@ApiResponse(responseCode = "404", description = "Resource not found")
 			}
-		});
+	)
+	@RequestMapping(
+			method = RequestMethod.POST,
+			value = "/task/{taskId}/reminder",
+			produces = {"application/json"},
+			consumes = {"application/json"}
+	)
+	default ResponseEntity<TaskResponse> createTaskReminder(
+			@Parameter(name = "taskId", description = "Task identifier", required = true, in = ParameterIn.PATH)
+			@PathVariable("taskId") UUID taskId) throws ApiException {
 		return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
 	}
 }

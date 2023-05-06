@@ -22,12 +22,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("${openapi.todo.base-path:}")
 public class TaskApiController implements TaskApi {
 
-	private final HttpServletRequest request;
 	private final TaskService taskService;
 
-	@Autowired
-	public TaskApiController(HttpServletRequest request, TaskService taskService) {
-		this.request = request;
+	public TaskApiController(TaskService taskService) {
 		this.taskService = taskService;
 	}
 
@@ -55,5 +52,10 @@ public class TaskApiController implements TaskApi {
 	@Override
 	public ResponseEntity<TaskResponse> updateTask(String userId, UUID taskId, TaskUpdateRequest taskUpdateRequest) throws ApiException {
 		return new ResponseEntity<>(taskService.updateTask(userId, taskId, taskUpdateRequest), HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<TaskResponse> createTaskReminder(UUID taskId) throws ApiException {
+		return new ResponseEntity<>(taskService.createTaskReminder(taskId), HttpStatus.OK);
 	}
 }
