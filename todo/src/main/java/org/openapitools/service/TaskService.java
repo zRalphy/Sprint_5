@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.openapitools.api.ApiException;
+import org.openapitools.model.dto.CreateReminderRequest;
 import org.openapitools.model.dto.TaskCreateRequest;
 import org.openapitools.model.dto.TaskResponse;
 import org.openapitools.model.dto.TaskUpdateRequest;
@@ -71,7 +72,7 @@ public class TaskService {
 		}
 	}
 
-	public TaskResponse createTaskReminder(UUID taskId) throws ApiException {
+	public TaskResponse createTaskReminder(UUID taskId, CreateReminderRequest reminderRequest) throws ApiException {
 		Optional<Task> existingTask = taskRepository.findTaskById(taskId);
 		if (existingTask.isPresent()) {
 			//And user type GOOGLE

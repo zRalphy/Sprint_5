@@ -1,17 +1,16 @@
 package org.openapitools.controller;
 
 import jakarta.annotation.Generated;
-import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.List;
 import java.util.UUID;
 
 import org.openapitools.api.ApiException;
+import org.openapitools.model.dto.CreateReminderRequest;
 import org.openapitools.model.dto.TaskCreateRequest;
 import org.openapitools.model.dto.TaskResponse;
 import org.openapitools.model.dto.TaskUpdateRequest;
 import org.openapitools.service.TaskService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -55,7 +54,7 @@ public class TaskApiController implements TaskApi {
 	}
 
 	@Override
-	public ResponseEntity<TaskResponse> createTaskReminder(UUID taskId) throws ApiException {
-		return new ResponseEntity<>(taskService.createTaskReminder(taskId), HttpStatus.OK);
+	public ResponseEntity<TaskResponse> createTaskReminder(UUID taskId, CreateReminderRequest reminderRequest) throws ApiException {
+		return new ResponseEntity<>(taskService.createTaskReminder(taskId, reminderRequest), HttpStatus.OK);
 	}
 }
