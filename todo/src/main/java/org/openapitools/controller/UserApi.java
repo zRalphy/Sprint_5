@@ -30,43 +30,6 @@ import org.springframework.web.context.request.NativeWebRequest;
 @Tag(name = "users", description = "the users API")
 public interface UserApi {
 
-	default Optional<NativeWebRequest> getRequest() {
-		return Optional.empty();
-	}
-
-	/**
-	 * POST /user/login : Authenticate the user
-	 *
-	 * @param userLoginRequest
-	 * 		(required)
-	 * @return Succesful authentication (status code 200)
-	 * or Request body is invalid (status code 400)
-	 * or Password in incorrect (status code 401)
-	 * or User doesn\\&#39;t exists (status code 404)
-	 */
-	@Operation(
-			operationId = "login",
-			summary = "Authenticate the user",
-			tags = {"users"},
-			responses = {
-					@ApiResponse(responseCode = "200", description = "Succesful authentication"),
-					@ApiResponse(responseCode = "400", description = "Request body is invalid"),
-					@ApiResponse(responseCode = "401", description = "Password in incorrect"),
-					@ApiResponse(responseCode = "404", description = "User doesn\\'t exists")
-			}
-	)
-	@RequestMapping(
-			method = RequestMethod.POST,
-			value = "/user/login",
-			consumes = {"application/json"}
-	)
-	default ResponseEntity<Void> login(
-			@Parameter(name = "UserLoginRequest", description = "", required = true) @Valid @RequestBody UserLoginRequest userLoginRequest
-	) throws ApiException {
-		return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
-
-	}
-
 	/**
 	 * POST /user/register : Creates new user
 	 *

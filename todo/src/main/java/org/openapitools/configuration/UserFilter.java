@@ -22,22 +22,19 @@ public class UserFilter extends AbstractAuthenticationProcessingFilter {
 	}
 
 	@Override
-	public Authentication attemptAuthentication(
-			HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-
-		String username, password;
+	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
+		String username;
+		String password;
 
 		try {
 			Map<String, String> requestMap = new ObjectMapper().readValue(request.getInputStream(), Map.class);
 			username = requestMap.get("userName");
 			password = requestMap.get("password");
 		} catch (IOException e) {
-			throw new AuthenticationServiceException(e.getMessage(), e);
+			throw new AuthenticationServiceException("Can not parse user data from request input stream", e);
 		}
 
-		UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(
-				username, password);
-
+		UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(username, password);
 		return this.getAuthenticationManager().authenticate(authRequest);
 	}
 }

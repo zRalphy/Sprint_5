@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.Optional;
 
 import org.openapitools.api.ApiException;
-import org.openapitools.model.dto.UserLoginRequest;
 import org.openapitools.model.dto.UserRegisterRequest;
 import org.openapitools.model.entity.User;
 import org.openapitools.repository.UserRepository;
@@ -15,6 +14,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -41,20 +43,6 @@ public class UserService extends DefaultOAuth2UserService implements UserDetails
 		}
 	}
 
-	public User loginUser(final UserLoginRequest userLoginRequest) throws ApiException {
-		Optional<User> existingUser = userRepository.findUserByUserName(userLoginRequest.getUserName());
-		if (existingUser.isPresent()) {
-			String password = existingUser.get().getPassword();
-			if (passwordEncoder.matches(userLoginRequest.getPassword(), password)) {
-				return existingUser.get();
-			} else {
-				throw new ApiException(HttpStatus.UNAUTHORIZED.value());
-			}
-		} else {
-			throw new ApiException(HttpStatus.NOT_FOUND.value());
-		}
-	}
-
 	@Override
 	public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
 		User user = userRepository.findUserByUserName(userName).get();
@@ -76,6 +64,11 @@ public class UserService extends DefaultOAuth2UserService implements UserDetails
 		} else {
 			return existingUser.get();
 		}
+	}
+
+	@Override
+	public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
+		return super.loadUser(userRequest);
 	}
 }
 

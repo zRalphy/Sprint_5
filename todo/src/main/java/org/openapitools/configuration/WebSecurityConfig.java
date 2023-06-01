@@ -16,6 +16,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
 
+import static org.openapitools.controller.UserApiController.OAUTH_USER;
+
 @EnableWebSecurity
 @Configuration
 public class WebSecurityConfig {
@@ -51,7 +53,7 @@ public class WebSecurityConfig {
 				.authorizeHttpRequests()
 				.requestMatchers("/user/**").permitAll()
 				.requestMatchers("/oauth2/**").permitAll()
-				.requestMatchers("/user/info").authenticated()
+				.requestMatchers("/user/info").hasRole(OAUTH_USER)
 				.anyRequest().authenticated()
 				.and()
 				.formLogin().and()
