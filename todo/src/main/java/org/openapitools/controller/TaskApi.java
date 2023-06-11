@@ -49,8 +49,6 @@ public interface TaskApi {
 	/**
 	 * POST /task : Creates new task
 	 *
-	 * @param userId
-	 * 		(required)
 	 * @param taskCreateRequest
 	 * 		(required)
 	 * @return Task created (status code 201)
@@ -74,19 +72,8 @@ public interface TaskApi {
 			consumes = {"application/json"}
 	)
 	default ResponseEntity<TaskResponse> createTask(
-			@NotNull @Parameter(name = "userId", description = "", required = true, in = ParameterIn.HEADER) @RequestHeader(value = "userId", required = true)
-					String userId,
 			@Parameter(name = "TaskCreateRequest", description = "", required = true) @Valid @RequestBody TaskCreateRequest taskCreateRequest)
 			throws ApiException {
-		getRequest().ifPresent(request -> {
-			for (MediaType mediaType : MediaType.parseMediaTypes(request.getHeader("Accept"))) {
-				if (mediaType.isCompatibleWith(MediaType.valueOf("application/json"))) {
-					String exampleString = "{ \"dueDate\" : \"2000-01-23\", \"name\" : \"name\", \"id\" : 58206234, \"isDone\" : true }";
-					ApiUtil.setExampleResponse(request, "application/json", exampleString);
-					break;
-				}
-			}
-		});
 		return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
 	}
 

@@ -32,8 +32,8 @@ public class TaskApiController implements TaskApi {
 	}
 
 	@Override
-	public ResponseEntity<TaskResponse> createTask(String userId, TaskCreateRequest taskCreateRequest) throws ApiException {
-		return new ResponseEntity<>(taskService.createTask(userId, taskCreateRequest), HttpStatus.OK);
+	public ResponseEntity<TaskResponse> createTask(TaskCreateRequest taskCreateRequest) throws ApiException {
+		return new ResponseEntity<>(taskService.createTask(taskCreateRequest), HttpStatus.OK);
 	}
 
 	@Override

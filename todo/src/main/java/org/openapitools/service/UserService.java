@@ -34,7 +34,7 @@ public class UserService extends DefaultOAuth2UserService implements UserDetails
 		if (!existingUser.isPresent()) {
 			User newUser = new User();
 			newUser.setUserName(userLoginRequest.getUserName());
-			newUser.setPassword((passwordEncoder.encode(userLoginRequest.getPassword())));
+			newUser.setPassword(passwordEncoder.encode(userLoginRequest.getPassword()));
 			newUser.setFullName(userLoginRequest.getFullName());
 			newUser.setProvider(User.Provider.LOCAL);
 			return userRepository.save(newUser);

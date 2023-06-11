@@ -9,19 +9,25 @@ import org.openapitools.model.dto.TaskCreateRequest;
 import org.openapitools.model.dto.TaskResponse;
 import org.openapitools.model.dto.TaskUpdateRequest;
 import org.openapitools.model.entity.Task;
+import org.openapitools.model.entity.User;
 import org.openapitools.model.mapper.TaskMapper;
 import org.openapitools.repository.TaskRepository;
+import org.openapitools.repository.UserRepository;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.stereotype.Service;
 
 @Service
 public class TaskService {
 	private final TaskRepository taskRepository;
+	private final UserRepository userRepository;
 	private final TaskMapper taskMapper;
 
-	public TaskService(TaskRepository taskRepository, TaskMapper taskMapper) {
+	public TaskService(TaskRepository taskRepository, TaskMapper taskMapper, UserRepository userRepository) {
 		this.taskRepository = taskRepository;
 		this.taskMapper = taskMapper;
+		this.userRepository = userRepository;
 	}
 
 	public List<TaskResponse> getAllTasksByUserId(String userId) {
@@ -34,12 +40,24 @@ public class TaskService {
 		return taskMapper.taskToTaskResponse(task);
 	}
 
-	public TaskResponse createTask(String userId, TaskCreateRequest taskCreateRequest) throws ApiException {
-		Optional<Task> existingTask = taskRepository.findTaskByNameAndUserId(taskCreateRequest.getName(), Long.parseLong(userId));
-		if (!existingTask.isPresent()) {
+	public TaskResponse createTask(TaskCreateRequest taskCreateRequest) throws ApiException {
+		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		if (principal instanceof DefaultOAuth2User defaultOAuth2User) {
+			Optional<User> userFromDb = userRepository.findUserByUserName(defaultOAuth2User.getAttributes().get("email").toString());
+			return createTaskByUser(taskCreateRequest, userFromDb.get().getId());
+		} else if (principal instanceof org.springframework.security.core.userdetails.User user) {
+			Optional<User> userFromDb = userRepository.findUserByUserName(user.getUsername());
+			return createTaskByUser(taskCreateRequest, userFromDb.get().getId());
+		}
+		throw new ApiException(HttpStatus.UNAUTHORIZED.value());
+	}
+
+	private TaskResponse createTaskByUser(TaskCreateRequest taskCreateRequest, Long userId) throws ApiException {
+		Optional<Task> existingTask = taskRepository.findTaskByNameAndUserId(taskCreateRequest.getName(), userId);
+		if (existingTask.isEmpty()) {
 			Task task = new Task();
 			task.setName(taskCreateRequest.getName());
-			task.setUserId(Long.parseLong(userId));
+			task.setUserId(userId);
 			task.setDueDate(taskCreateRequest.getDueDate());
 			task.setIsCompleted(false);
 			taskRepository.saveAndFlush(task);
