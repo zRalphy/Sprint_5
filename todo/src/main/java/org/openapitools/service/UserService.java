@@ -1,10 +1,12 @@
 package org.openapitools.service;
 
 import java.util.Collections;
+import java.util.Map;
 import java.util.Optional;
 
 import org.openapitools.api.ApiException;
 import org.openapitools.model.dto.UserRegisterRequest;
+import org.openapitools.model.entity.GlobalUser;
 import org.openapitools.model.entity.User;
 import org.openapitools.repository.UserRepository;
 import org.springframework.http.HttpStatus;
@@ -44,13 +46,14 @@ public class UserService extends DefaultOAuth2UserService implements UserDetails
 	}
 
 	@Override
-	public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
+	public GlobalUser loadUserByUsername(String userName) throws UsernameNotFoundException {
 		User user = userRepository.findUserByUserName(userName).get();
-		return org.springframework.security.core.userdetails.User
-				.withUsername(userName)
-				.password(user.getPassword())
-				.authorities(Collections.singleton(new SimpleGrantedAuthority(String.valueOf(user.getId()))))
-				.build();
+		GlobalUser globalUser = new GlobalUser(Collections.singleton(
+				new SimpleGrantedAuthority(String.valueOf(user.getId()))), Map.of("userName", user.getUserName()), "userName");
+		globalUser.setId(user.getId());
+		globalUser.setUserName(user.getUserName());
+		globalUser.setPassword(user.getPassword());
+		return globalUser;
 	}
 
 	public User registerOauthUser(String userName, String fullName) {
@@ -68,7 +71,13 @@ public class UserService extends DefaultOAuth2UserService implements UserDetails
 
 	@Override
 	public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-		return super.loadUser(userRequest);
+		OAuth2User oAuth2User = super.loadUser(userRequest);
+		User user = userRepository.findUserByUserName(oAuth2User.getAttributes().get("email").toString()).get();
+		GlobalUser globalUser = new GlobalUser(oAuth2User.getAuthorities(), oAuth2User.getAttributes(), "sub");
+		globalUser.setId(user.getId());
+		globalUser.setUserName(user.getUserName());
+		globalUser.setPassword(user.getPassword());
+		return globalUser;
 	}
 }
 

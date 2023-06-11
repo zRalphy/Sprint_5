@@ -8,14 +8,13 @@ import org.openapitools.api.ApiException;
 import org.openapitools.model.dto.TaskCreateRequest;
 import org.openapitools.model.dto.TaskResponse;
 import org.openapitools.model.dto.TaskUpdateRequest;
+import org.openapitools.model.entity.GlobalUser;
 import org.openapitools.model.entity.Task;
-import org.openapitools.model.entity.User;
 import org.openapitools.model.mapper.TaskMapper;
 import org.openapitools.repository.TaskRepository;
 import org.openapitools.repository.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -39,7 +38,7 @@ public class TaskService {
 		Task task = taskRepository.findTaskByUserIdAndId(Long.parseLong(userId), taskId).orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND.value()));
 		return taskMapper.taskToTaskResponse(task);
 	}
-
+/*
 	public TaskResponse createTask(TaskCreateRequest taskCreateRequest) throws ApiException {
 		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		if (principal instanceof DefaultOAuth2User defaultOAuth2User) {
@@ -50,6 +49,13 @@ public class TaskService {
 			return createTaskByUser(taskCreateRequest, userFromDb.get().getId());
 		}
 		throw new ApiException(HttpStatus.UNAUTHORIZED.value());
+	}
+
+ */
+
+	public TaskResponse createTask(TaskCreateRequest taskCreateRequest) throws ApiException {
+		GlobalUser globalUser = (GlobalUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		return createTaskByUser(taskCreateRequest, globalUser.getId());
 	}
 
 	private TaskResponse createTaskByUser(TaskCreateRequest taskCreateRequest, Long userId) throws ApiException {
