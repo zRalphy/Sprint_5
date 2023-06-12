@@ -8,7 +8,7 @@ import org.openapitools.api.ApiException;
 import org.openapitools.model.dto.TaskCreateRequest;
 import org.openapitools.model.dto.TaskResponse;
 import org.openapitools.model.dto.TaskUpdateRequest;
-import org.openapitools.model.entity.GlobalUser;
+import org.openapitools.model.dto.GlobalUser;
 import org.openapitools.model.entity.Task;
 import org.openapitools.model.mapper.TaskMapper;
 import org.openapitools.repository.TaskRepository;

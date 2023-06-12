@@ -6,12 +6,11 @@ import java.util.Optional;
 
 import org.openapitools.api.ApiException;
 import org.openapitools.model.dto.UserRegisterRequest;
-import org.openapitools.model.entity.GlobalUser;
+import org.openapitools.model.dto.GlobalUser;
 import org.openapitools.model.entity.User;
 import org.openapitools.repository.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
