@@ -52,6 +52,7 @@ public class WebSecurityConfig {
 				.requestMatchers("/user/**").permitAll()
 				.requestMatchers("/oauth2/**").permitAll()
 				.requestMatchers("/user/info").authenticated()
+				.requestMatchers("**/reminder").hasRole("GOOGLE")
 				.anyRequest().authenticated()
 				.and()
 				.formLogin().and()

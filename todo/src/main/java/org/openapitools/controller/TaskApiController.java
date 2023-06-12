@@ -1,6 +1,7 @@
 package org.openapitools.controller;
 
 import jakarta.annotation.Generated;
+import jakarta.annotation.security.RolesAllowed;
 
 import java.util.List;
 import java.util.UUID;
@@ -54,6 +55,7 @@ public class TaskApiController implements TaskApi {
 	}
 
 	@Override
+	@RolesAllowed("GOOGLE")
 	public ResponseEntity<TaskResponse> createTaskReminder(UUID taskId, CreateReminderRequest reminderRequest) throws ApiException {
 		return new ResponseEntity<>(taskService.createTaskReminder(taskId, reminderRequest), HttpStatus.OK);
 	}

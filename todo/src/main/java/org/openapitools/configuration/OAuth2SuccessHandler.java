@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
-
 	private final UserService userService;
 
 	public OAuth2SuccessHandler(UserService userService) {

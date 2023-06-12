@@ -1,9 +1,16 @@
 package org.openapitools.service;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.services.calendar.Calendar;
 
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
@@ -84,22 +91,12 @@ public class TaskService {
 		}
 	}
 
-	public TaskResponse createTaskReminder(UUID taskId, CreateReminderRequest reminderRequest) throws ApiException {
+	public TaskResponse createTaskReminder(UUID taskId, CreateReminderRequest reminderRequest) throws ApiException, GeneralSecurityException, IOException {
 		Optional<Task> existingTask = taskRepository.findTaskById(taskId);
 		if (existingTask.isPresent()) {
-			//When user type GOOGLE
-			HttpPost httppost = new HttpPost(eventUrl);
+			Calendar calendar = new Calendar.Builder(GoogleNetHttpTransport.newTrustedTransport(), new JacksonFactory(), new GoogleCredential()).build();
+			calendar.get
 
-			List<NameValuePair> params = new ArrayList<>(1);
-			params.add(new BasicNameValuePair("key", apiKey));
-
-			httppost.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
-
-			httppost.addHeader("Authorization", "Bearer " + accessToken);
-			httppost.addHeader("Accept", "application/json");
-			httppost.addHeader("Content-Type", "application/json");
-
-			String jsonString = EntityUtils.toString(httpclient.execute(httppost).getEntity());
 			return new TaskResponse(UUID.randomUUID(), "test");
 		} else {
 			throw new ApiException(HttpStatus.NOT_FOUND.value());
