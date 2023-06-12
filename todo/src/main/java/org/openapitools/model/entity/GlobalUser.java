@@ -1,5 +1,13 @@
 package org.openapitools.model.entity;
 
+import jakarta.persistence.Entity;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
@@ -8,6 +16,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 
+@Getter
+@Setter
+@ToString
 public class GlobalUser extends DefaultOAuth2User implements UserDetails {
 	private long id;
 	private String userName;
@@ -17,30 +28,6 @@ public class GlobalUser extends DefaultOAuth2User implements UserDetails {
 	public GlobalUser(Collection<? extends GrantedAuthority> authorities, Map<String, Object> attributes,
 			String nameAttributeKey) {
 		super(authorities, attributes, nameAttributeKey);
-	}
-
-	public long getId() {
-		return id;
-	}
-
-	public void setId(long id) {
-		this.id = id;
-	}
-
-	public Set<GrantedAuthority> getAuthorities() {
-		return authorities;
-	}
-
-	public String getUserName() {
-		return userName;
-	}
-
-	public void setUserName(String userName) {
-		this.userName = userName;
-	}
-
-	public String getPassword() {
-		return password;
 	}
 
 	@Override
@@ -66,13 +53,5 @@ public class GlobalUser extends DefaultOAuth2User implements UserDetails {
 	@Override
 	public boolean isEnabled() {
 		return true;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
-	public void setAuthorities(Set<GrantedAuthority> authorities) {
-		this.authorities = authorities;
 	}
 }

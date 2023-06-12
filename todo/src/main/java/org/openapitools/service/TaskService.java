@@ -12,7 +12,6 @@ import org.openapitools.model.entity.GlobalUser;
 import org.openapitools.model.entity.Task;
 import org.openapitools.model.mapper.TaskMapper;
 import org.openapitools.repository.TaskRepository;
-import org.openapitools.repository.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -20,13 +19,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class TaskService {
 	private final TaskRepository taskRepository;
-	private final UserRepository userRepository;
 	private final TaskMapper taskMapper;
 
-	public TaskService(TaskRepository taskRepository, TaskMapper taskMapper, UserRepository userRepository) {
+	public TaskService(TaskRepository taskRepository, TaskMapper taskMapper) {
 		this.taskRepository = taskRepository;
 		this.taskMapper = taskMapper;
-		this.userRepository = userRepository;
 	}
 
 	public List<TaskResponse> getAllTasksByUserId(String userId) {
@@ -38,20 +35,6 @@ public class TaskService {
 		Task task = taskRepository.findTaskByUserIdAndId(Long.parseLong(userId), taskId).orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND.value()));
 		return taskMapper.taskToTaskResponse(task);
 	}
-/*
-	public TaskResponse createTask(TaskCreateRequest taskCreateRequest) throws ApiException {
-		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		if (principal instanceof DefaultOAuth2User defaultOAuth2User) {
-			Optional<User> userFromDb = userRepository.findUserByUserName(defaultOAuth2User.getAttributes().get("email").toString());
-			return createTaskByUser(taskCreateRequest, userFromDb.get().getId());
-		} else if (principal instanceof org.springframework.security.core.userdetails.User user) {
-			Optional<User> userFromDb = userRepository.findUserByUserName(user.getUsername());
-			return createTaskByUser(taskCreateRequest, userFromDb.get().getId());
-		}
-		throw new ApiException(HttpStatus.UNAUTHORIZED.value());
-	}
-
- */
 
 	public TaskResponse createTask(TaskCreateRequest taskCreateRequest) throws ApiException {
 		GlobalUser globalUser = (GlobalUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -65,7 +48,7 @@ public class TaskService {
 			task.setName(taskCreateRequest.getName());
 			task.setUserId(userId);
 			task.setDueDate(taskCreateRequest.getDueDate());
-			task.setIsCompleted(false);
+			task.setCompleted(false);
 			taskRepository.saveAndFlush(task);
 			return taskMapper.taskToTaskResponse(task);
 		} else {
@@ -78,7 +61,7 @@ public class TaskService {
 		if (existingTask.isPresent()) {
 			existingTask.get().setName(taskUpdateRequest.getName());
 			existingTask.get().setDueDate(taskUpdateRequest.getDueDate());
-			existingTask.get().setIsCompleted(taskUpdateRequest.getIsCompleted());
+			existingTask.get().setCompleted(taskUpdateRequest.getIsCompleted());
 			taskRepository.saveAndFlush(existingTask.get());
 			return taskMapper.taskToTaskResponse(existingTask.get());
 		} else {
