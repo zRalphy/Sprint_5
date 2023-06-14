@@ -56,9 +56,9 @@ public class TaskService {
 		GlobalUser globalUser = (GlobalUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		Optional<Task> existingTask = taskRepository.findTaskByUserIdAndId(globalUser.getId(), taskId);
 		if (existingTask.isPresent()) {
-			existingTask.get().setName(taskUpdateRequest.getName());
-			existingTask.get().setDueDate(taskUpdateRequest.getDueDate());
-			existingTask.get().setCompleted(taskUpdateRequest.getIsCompleted());
+			existingTask.get().setName(taskUpdateRequest.getName() != null ? taskUpdateRequest.getName() : existingTask.get().getName());
+			existingTask.get().setDueDate(taskUpdateRequest.getDueDate() != null ? taskUpdateRequest.getDueDate() : existingTask.get().getDueDate());
+			existingTask.get().setCompleted(taskUpdateRequest.getIsCompleted() != null ? taskUpdateRequest.getIsCompleted() : existingTask.get().isCompleted());
 			taskRepository.saveAndFlush(existingTask.get());
 			return taskMapper.taskToTaskResponse(existingTask.get());
 		} else {
