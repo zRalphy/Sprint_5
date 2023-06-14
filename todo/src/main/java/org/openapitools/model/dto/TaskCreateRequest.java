@@ -1,10 +1,8 @@
 package org.openapitools.model.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.annotation.Generated;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDate;
 import java.util.Objects;
@@ -17,7 +15,6 @@ import org.springframework.format.annotation.DateTimeFormat;
  * TaskCreateRequest
  */
 
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-04-02T20:47:24.972943100+02:00[Europe/Warsaw]")
 public class TaskCreateRequest {
 
 	private String name;

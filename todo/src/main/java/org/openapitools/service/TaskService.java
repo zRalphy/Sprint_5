@@ -1,14 +1,16 @@
 package org.openapitools.service;
 
+import lombok.RequiredArgsConstructor;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import org.openapitools.api.ApiException;
+import org.openapitools.model.dto.GlobalUser;
 import org.openapitools.model.dto.TaskCreateRequest;
 import org.openapitools.model.dto.TaskResponse;
 import org.openapitools.model.dto.TaskUpdateRequest;
-import org.openapitools.model.dto.GlobalUser;
 import org.openapitools.model.entity.Task;
 import org.openapitools.model.mapper.TaskMapper;
 import org.openapitools.repository.TaskRepository;
@@ -17,36 +19,30 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class TaskService {
 	private final TaskRepository taskRepository;
 	private final TaskMapper taskMapper;
 
-	public TaskService(TaskRepository taskRepository, TaskMapper taskMapper) {
-		this.taskRepository = taskRepository;
-		this.taskMapper = taskMapper;
-	}
-
-	public List<TaskResponse> getAllTasksByUserId(String userId) {
-		List<Task> taskList = taskRepository.findAllTaskByUserId(Long.parseLong(userId));
+	public List<TaskResponse> getAllTasksByUserId() {
+		GlobalUser globalUser = (GlobalUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		List<Task> taskList = taskRepository.findAllTaskByUserId(globalUser.getId());
 		return taskMapper.listTaskToListTaskResponse(taskList);
 	}
 
-	public TaskResponse getTaskByUSerIdAndTaskId(String userId, UUID taskId) throws ApiException {
-		Task task = taskRepository.findTaskByUserIdAndId(Long.parseLong(userId), taskId).orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND.value()));
+	public TaskResponse getTaskByUserIdAndTaskId(Long taskId) throws ApiException {
+		GlobalUser globalUser = (GlobalUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		Task task = taskRepository.findTaskByUserIdAndId(globalUser.getId(), taskId).orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND.value()));
 		return taskMapper.taskToTaskResponse(task);
 	}
 
 	public TaskResponse createTask(TaskCreateRequest taskCreateRequest) throws ApiException {
 		GlobalUser globalUser = (GlobalUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		return createTaskByUser(taskCreateRequest, globalUser.getId());
-	}
-
-	private TaskResponse createTaskByUser(TaskCreateRequest taskCreateRequest, Long userId) throws ApiException {
-		Optional<Task> existingTask = taskRepository.findTaskByNameAndUserId(taskCreateRequest.getName(), userId);
+		Optional<Task> existingTask = taskRepository.findTaskByNameAndUserId(taskCreateRequest.getName(), globalUser.getId());
 		if (existingTask.isEmpty()) {
 			Task task = new Task();
 			task.setName(taskCreateRequest.getName());
-			task.setUserId(userId);
+			task.setUserId(globalUser.getId());
 			task.setDueDate(taskCreateRequest.getDueDate());
 			task.setCompleted(false);
 			taskRepository.saveAndFlush(task);
@@ -56,8 +52,9 @@ public class TaskService {
 		}
 	}
 
-	public TaskResponse updateTask(String userId, UUID taskId, TaskUpdateRequest taskUpdateRequest) throws ApiException {
-		Optional<Task> existingTask = taskRepository.findTaskByUserIdAndId(Long.parseLong(userId), taskId);
+	public TaskResponse updateTask(Long taskId, TaskUpdateRequest taskUpdateRequest) throws ApiException {
+		GlobalUser globalUser = (GlobalUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		Optional<Task> existingTask = taskRepository.findTaskByUserIdAndId(globalUser.getId(), taskId);
 		if (existingTask.isPresent()) {
 			existingTask.get().setName(taskUpdateRequest.getName());
 			existingTask.get().setDueDate(taskUpdateRequest.getDueDate());
@@ -69,8 +66,9 @@ public class TaskService {
 		}
 	}
 
-	public void deleteTask(String userId, UUID taskId) throws ApiException {
-		Optional<Task> existingTask = taskRepository.findTaskByUserIdAndId(Long.parseLong(userId), taskId);
+	public void deleteTask(Long taskId) throws ApiException {
+		GlobalUser globalUser = (GlobalUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		Optional<Task> existingTask = taskRepository.findTaskByUserIdAndId(globalUser.getId(), taskId);
 		if (existingTask.isPresent()) {
 			taskRepository.delete(existingTask.get());
 		} else {

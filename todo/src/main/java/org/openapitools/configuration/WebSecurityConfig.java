@@ -1,5 +1,7 @@
 package org.openapitools.configuration;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openapitools.service.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,18 +22,11 @@ import static org.openapitools.controller.UserApiController.OAUTH_USER;
 
 @EnableWebSecurity
 @Configuration
+@RequiredArgsConstructor
 public class WebSecurityConfig {
-
 	private final UserService userService;
 	private final PasswordEncoder passwordEncoder;
 	private final AuthenticationSuccessHandler authenticationSuccessHandler;
-
-	public WebSecurityConfig(UserService userService, PasswordEncoder passwordEncoder,
-			AuthenticationSuccessHandler authenticationSuccessHandler) {
-		this.userService = userService;
-		this.passwordEncoder = passwordEncoder;
-		this.authenticationSuccessHandler = authenticationSuccessHandler;
-	}
 
 	@Bean
 	public HttpSessionEventPublisher httpSessionEventPublisher() {
