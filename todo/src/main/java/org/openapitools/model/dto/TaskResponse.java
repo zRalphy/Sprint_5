@@ -1,13 +1,11 @@
 package org.openapitools.model.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.annotation.Generated;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;
 import java.util.Objects;
-import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -17,10 +15,9 @@ import org.springframework.format.annotation.DateTimeFormat;
  * TaskResponse
  */
 
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-04-02T20:47:24.972943100+02:00[Europe/Warsaw]")
 public class TaskResponse {
 
-	private UUID id;
+	private Long id;
 
 	private String name;
 
@@ -32,7 +29,7 @@ public class TaskResponse {
 	/**
 	 * Default constructor
 	 *
-	 * @deprecated Use {@link TaskResponse#TaskResponse(UUID, String)}
+	 * @deprecated Use {@link TaskResponse#TaskResponse(Long, String)}
 	 */
 	@Deprecated
 	public TaskResponse() {
@@ -42,12 +39,12 @@ public class TaskResponse {
 	/**
 	 * Constructor with only required parameters
 	 */
-	public TaskResponse(UUID id, String name) {
+	public TaskResponse(Long id, String name) {
 		this.id = id;
 		this.name = name;
 	}
 
-	public TaskResponse id(UUID id) {
+	public TaskResponse id(Long id) {
 		this.id = id;
 		return this;
 	}
@@ -60,11 +57,11 @@ public class TaskResponse {
 	@NotNull
 	@Schema(name = "id", example = "58206234", requiredMode = Schema.RequiredMode.REQUIRED)
 	@JsonProperty("id")
-	public UUID getId() {
+	public Long getId() {
 		return id;
 	}
 
-	public void setId(UUID id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 

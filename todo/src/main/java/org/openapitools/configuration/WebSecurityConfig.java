@@ -1,5 +1,7 @@
 package org.openapitools.configuration;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openapitools.service.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,20 +18,15 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
 
+import static org.openapitools.controller.UserApiController.OAUTH_USER;
+
 @EnableWebSecurity
 @Configuration
+@RequiredArgsConstructor
 public class WebSecurityConfig {
-
 	private final UserService userService;
 	private final PasswordEncoder passwordEncoder;
 	private final AuthenticationSuccessHandler authenticationSuccessHandler;
-
-	public WebSecurityConfig(UserService userService, PasswordEncoder passwordEncoder,
-			AuthenticationSuccessHandler authenticationSuccessHandler) {
-		this.userService = userService;
-		this.passwordEncoder = passwordEncoder;
-		this.authenticationSuccessHandler = authenticationSuccessHandler;
-	}
 
 	@Bean
 	public HttpSessionEventPublisher httpSessionEventPublisher() {
@@ -51,8 +48,8 @@ public class WebSecurityConfig {
 				.authorizeHttpRequests()
 				.requestMatchers("/user/**").permitAll()
 				.requestMatchers("/oauth2/**").permitAll()
-				.requestMatchers("/user/info").authenticated()
-				.requestMatchers("**/reminder").hasRole("GOOGLE")
+				.requestMatchers("/user/info").hasRole(OAUTH_USER)
+				.requestMatchers("**/reminder").hasRole(OAUTH_USER)
 				.anyRequest().authenticated()
 				.and()
 				.formLogin().and()

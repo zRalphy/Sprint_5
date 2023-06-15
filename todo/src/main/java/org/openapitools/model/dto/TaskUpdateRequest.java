@@ -1,7 +1,6 @@
 package org.openapitools.model.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.annotation.Generated;
 import jakarta.validation.Valid;
 
 import java.time.LocalDate;
@@ -15,7 +14,6 @@ import org.springframework.format.annotation.DateTimeFormat;
  * TaskUpdateRequest
  */
 
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-04-02T20:47:24.972943100+02:00[Europe/Warsaw]")
 public class TaskUpdateRequest {
 
 	private Long id;
