@@ -57,6 +57,7 @@ public class TaskApiController implements TaskApi {
 	@Override
 	@RolesAllowed("GOOGLE")
 	public ResponseEntity<TaskResponse> createTaskReminder(UUID taskId, CreateReminderRequest reminderRequest) throws ApiException {
-		return new ResponseEntity<>(taskService.createTaskReminder(taskId, reminderRequest), HttpStatus.OK);
+		return new ResponseEntity<>(
+				taskService.createTaskReminder(taskId, reminderRequest), HttpStatus.OK);
 	}
 }

@@ -1,13 +1,28 @@
 package org.openapitools.model.dto;
 
 public class CreateReminderRequest {
-	private String dateTime;
+	private String startDateTime;
+	private String endDateTime;
 
-	public String getDateTime() {
-		return dateTime;
+	public CreateReminderRequest(String startDateTime, String endDateTime) {
+		this.startDateTime = startDateTime;
+		this.endDateTime = endDateTime;
 	}
 
-	public void setDateTime(String dateTime) {
-		this.dateTime = dateTime;
+	public String getStartDateTime() {
+		return startDateTime;
 	}
+
+	public void setStartDateTime(String startDateTime) {
+		this.startDateTime = startDateTime;
+	}
+
+	public String getEndDateTime() {
+		return endDateTime;
+	}
+
+	public void setEndDateTime(String endDateTime) {
+		this.endDateTime = endDateTime;
+	}
+
 }
