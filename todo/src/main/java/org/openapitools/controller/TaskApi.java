@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.openapitools.api.ApiException;
+import org.openapitools.api.ApiUtil;
 import org.openapitools.model.dto.CreateReminderRequest;
 import org.openapitools.model.dto.TaskCreateRequest;
 import org.openapitools.model.dto.TaskResponse;
@@ -256,7 +257,7 @@ public interface TaskApi {
 			consumes = {"application/json"}
 	)
 	default ResponseEntity<TaskResponse> createTaskReminder(
-			@Parameter(name = "taskId", description = "Task identifier", required = true, in = ParameterIn.PATH) @PathVariable("taskId") UUID taskId,
+			@Parameter(name = "taskId", description = "Task identifier", required = true, in = ParameterIn.PATH) @PathVariable("taskId") Long taskId,
 			@Parameter(name = "CreateReminderRequest", required = true) @Valid @RequestBody CreateReminderRequest reminderRequest)
 			throws ApiException {
 		return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);

@@ -17,6 +17,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import static org.openapitools.controller.UserApiController.OAUTH_USER;
+
 @Controller
 @RequestMapping("${openapi.todo.base-path:}")
 public class TaskApiController implements TaskApi {
@@ -55,7 +57,7 @@ public class TaskApiController implements TaskApi {
 
 	@Override
 	@RolesAllowed(OAUTH_USER)
-	public ResponseEntity<TaskResponse> createTaskReminder(UUID taskId, CreateReminderRequest reminderRequest) throws ApiException {
+	public ResponseEntity<TaskResponse> createTaskReminder(Long taskId, CreateReminderRequest reminderRequest) throws ApiException {
 		return new ResponseEntity<>(
 				taskService.createTaskReminder(taskId, reminderRequest), HttpStatus.OK);
 	}

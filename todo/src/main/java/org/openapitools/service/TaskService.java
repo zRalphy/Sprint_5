@@ -80,7 +80,7 @@ public class TaskService {
 		}
 	}
 
-	public TaskResponse createTaskReminder(UUID taskId, CreateReminderRequest reminderRequest) throws ApiException {
+	public TaskResponse createTaskReminder(Long taskId, CreateReminderRequest reminderRequest) throws ApiException {
 		Optional<Task> existingTask = taskRepository.findTaskById(taskId);
 		if (existingTask.isPresent()) {
 			try {

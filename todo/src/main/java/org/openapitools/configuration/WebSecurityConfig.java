@@ -49,7 +49,6 @@ public class WebSecurityConfig {
 				.requestMatchers("/user/**").permitAll()
 				.requestMatchers("/oauth2/**").permitAll()
 				.requestMatchers("/user/info").hasRole(OAUTH_USER)
-				.requestMatchers("**/reminder").hasRole(OAUTH_USER)
 				.anyRequest().authenticated()
 				.and()
 				.formLogin().and()
