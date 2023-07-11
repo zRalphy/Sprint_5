@@ -182,6 +182,35 @@ paths:
       x-accepts: application/json
       x-tags:
       - tag: tasks
+  /task/{taskId}/reminder:
+    post:
+      operationId: createReminder
+      summary: Creates reminder in Google Calendar
+      tags:
+      - tasks
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateReminderRequest'
+      parameters:
+        - name: taskId
+          in: path
+          description: Task identifier
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "201":
+          description: 'Reminder created'
+        "401":
+          $ref: '#/components/responses/UnauthorizedError'
+        "403":
+          $ref: '#/components/responses/ForbiddenError'
+        "404":
+          $ref: '#/components/responses/NotFoundError'
   /user/login:
     post:
       operationId: login
@@ -339,4 +368,12 @@ components:
       required:
       - id
       - name
+      type: object
+    CreateReminderRequest:
+      properties:
+        dateTime:
+          type: string
+          format: datetime
+      required:
+      - dateTime
       type: object

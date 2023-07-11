@@ -20,6 +20,7 @@ import java.util.Optional;
 
 import org.openapitools.api.ApiException;
 import org.openapitools.api.ApiUtil;
+import org.openapitools.model.dto.CreateReminderRequest;
 import org.openapitools.model.dto.TaskCreateRequest;
 import org.openapitools.model.dto.TaskResponse;
 import org.openapitools.model.dto.TaskUpdateRequest;
@@ -222,6 +223,42 @@ public interface TaskApi {
 	)
 	default ResponseEntity<Void> deleteTask(
 			@Parameter(name = "taskId", description = "Task identifier", required = true, in = ParameterIn.PATH) @PathVariable("taskId") Long taskId)
+			throws ApiException {
+		return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+	}
+
+	/**
+	 * POST /task/{taskId}/reminder : Creates reminder in Google Calendar
+	 *
+	 * @param taskId
+	 * 		Task identifier (required)
+	 * @return Created task (status code 201)
+	 * or Access token is missing or invalid (status code 401)
+	 * or Resource is forbidden (status code 403)
+	 * or Resource not found (status code 404)
+	 */
+	@Operation(
+			operationId = "createReminder",
+			summary = "Creates reminder in Google Calendar",
+			tags = {"tasks"},
+			responses = {
+					@ApiResponse(responseCode = "201", description = "Reminder created", content = {
+							@Content(mediaType = "application/json")
+					}),
+					@ApiResponse(responseCode = "401", description = "Access token is missing or invalid"),
+					@ApiResponse(responseCode = "403", description = "Resource is forbidden"),
+					@ApiResponse(responseCode = "404", description = "Resource not found")
+			}
+	)
+	@RequestMapping(
+			method = RequestMethod.POST,
+			value = "/task/{taskId}/reminder",
+			produces = {"application/json"},
+			consumes = {"application/json"}
+	)
+	default ResponseEntity<TaskResponse> createTaskReminder(
+			@Parameter(name = "taskId", description = "Task identifier", required = true, in = ParameterIn.PATH) @PathVariable("taskId") Long taskId,
+			@Parameter(name = "CreateReminderRequest", required = true) @Valid @RequestBody CreateReminderRequest reminderRequest)
 			throws ApiException {
 		return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
 	}

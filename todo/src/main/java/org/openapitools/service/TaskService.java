@@ -1,5 +1,7 @@
 package org.openapitools.service;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
@@ -8,6 +10,7 @@ import java.util.UUID;
 
 import org.openapitools.api.ApiException;
 import org.openapitools.model.dto.GlobalUser;
+import org.openapitools.model.dto.CreateReminderRequest;
 import org.openapitools.model.dto.TaskCreateRequest;
 import org.openapitools.model.dto.TaskResponse;
 import org.openapitools.model.dto.TaskUpdateRequest;
@@ -23,6 +26,7 @@ import org.springframework.stereotype.Service;
 public class TaskService {
 	private final TaskRepository taskRepository;
 	private final TaskMapper taskMapper;
+	private final GoogleCalendarApiService googleCalendarApiService;
 
 	public List<TaskResponse> getAllTasksByUserId() {
 		GlobalUser globalUser = (GlobalUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -71,6 +75,22 @@ public class TaskService {
 		Optional<Task> existingTask = taskRepository.findTaskByUserIdAndId(globalUser.getId(), taskId);
 		if (existingTask.isPresent()) {
 			taskRepository.delete(existingTask.get());
+		} else {
+			throw new ApiException(HttpStatus.NOT_FOUND.value());
+		}
+	}
+
+	public TaskResponse createTaskReminder(Long taskId, CreateReminderRequest reminderRequest) throws ApiException {
+		Optional<Task> existingTask = taskRepository.findTaskById(taskId);
+		if (existingTask.isPresent()) {
+			try {
+				googleCalendarApiService.createReminder(existingTask.get().getName(), reminderRequest.getStartDateTime(), reminderRequest.getEndDateTime());
+			} catch (GeneralSecurityException e) {
+				throw new ApiException(HttpStatus.UNAUTHORIZED.value());
+			} catch (IOException e) {
+				throw new ApiException(HttpStatus.BAD_REQUEST.value());
+			}
+			return taskMapper.taskToTaskResponse(existingTask.get());
 		} else {
 			throw new ApiException(HttpStatus.NOT_FOUND.value());
 		}
