@@ -58,7 +58,7 @@ public class TaskApiController implements TaskApi {
 	}
 
 	@Override
-	@RolesAllowed(OAUTH_USER)
+	//@RolesAllowed(OAUTH_USER)
 	public ResponseEntity<TaskResponse> createTaskReminder(Long taskId, CreateReminderRequest reminderRequest) throws ApiException {
 		return new ResponseEntity<>(taskService.createTaskReminder(taskId, reminderRequest), HttpStatus.OK);
 	}
