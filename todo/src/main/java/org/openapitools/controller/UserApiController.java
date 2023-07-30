@@ -15,7 +15,7 @@ import org.springframework.web.context.request.NativeWebRequest;
 @Controller
 @RequestMapping("${openapi.todo.base-path:}")
 public class UserApiController implements UserApi {
-	public static final String OAUTH_USER = "OAUTH_USER";
+	public static final String OIDC_USER = "OIDC_USER";
 
 	private final NativeWebRequest request;
 
@@ -25,7 +25,7 @@ public class UserApiController implements UserApi {
 	}
 
 	@Override
-	@Secured({OAUTH_USER})
+	@Secured({OIDC_USER})
 	public ResponseEntity<String> getUserInfo() throws ApiException {
 		Principal token = request.getUserPrincipal();
 		String userName;

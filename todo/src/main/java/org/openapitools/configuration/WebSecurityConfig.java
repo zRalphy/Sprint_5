@@ -9,7 +9,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 
-import static org.openapitools.controller.UserApiController.OAUTH_USER;
+import static org.openapitools.controller.UserApiController.OIDC_USER;
 
 @EnableWebSecurity
 @Configuration
@@ -27,7 +27,7 @@ public class WebSecurityConfig {
 				.authorizeHttpRequests()
 				.requestMatchers("/user/**").permitAll()
 				.requestMatchers("/oauth2/**").permitAll()
-				.requestMatchers("/user/info").hasRole(OAUTH_USER)
+				.requestMatchers("/user/info").hasRole(OIDC_USER)
 				.anyRequest().authenticated()
 				.and()
 				.oauth2Login()

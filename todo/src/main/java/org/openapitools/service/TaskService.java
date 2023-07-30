@@ -1,6 +1,7 @@
 package org.openapitools.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -11,7 +12,6 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.aspectj.weaver.ast.Var;
 import org.openapitools.api.ApiException;
 import org.openapitools.model.dto.CreateReminderRequest;
 import org.openapitools.model.dto.TaskCreateRequest;
@@ -32,10 +32,9 @@ public class TaskService {
 	private final GoogleCalendarApiService googleCalendarApiService;
 	private final Pattern pattern = Pattern.compile("\\|(.{2})");
 
-
 	public List<TaskResponse> getAllTasksByUserId(OidcUser oidcUser) {
 		Matcher matcher = pattern.matcher(Objects.requireNonNull(oidcUser.getAttribute("sub")));
-		if(!matcher.find()) {
+		if (!matcher.find()) {
 			return new ArrayList<>(10);
 		}
 
@@ -47,7 +46,7 @@ public class TaskService {
 
 	public TaskResponse getTaskByUserIdAndTaskId(Long taskId, OidcUser oidcUser) throws ApiException {
 		Matcher matcher = pattern.matcher(Objects.requireNonNull(oidcUser.getAttribute("sub")));
-		if(!matcher.find()) {
+		if (!matcher.find()) {
 			throw new ApiException(HttpStatus.NOT_FOUND.value());
 		}
 
@@ -61,7 +60,7 @@ public class TaskService {
 
 	public TaskResponse createTask(TaskCreateRequest taskCreateRequest, OidcUser oidcUser) throws ApiException {
 		Matcher matcher = pattern.matcher(Objects.requireNonNull(oidcUser.getAttribute("sub")));
-		if(!matcher.find()) {
+		if (!matcher.find()) {
 			throw new ApiException(HttpStatus.NOT_FOUND.value());
 		}
 
@@ -82,7 +81,7 @@ public class TaskService {
 
 	public TaskResponse updateTask(Long taskId, TaskUpdateRequest taskUpdateRequest, OidcUser oidcUser) throws ApiException {
 		Matcher matcher = pattern.matcher(Objects.requireNonNull(oidcUser.getAttribute("sub")));
-		if(!matcher.find()) {
+		if (!matcher.find()) {
 			throw new ApiException(HttpStatus.NOT_FOUND.value());
 		}
 
@@ -102,7 +101,7 @@ public class TaskService {
 
 	public void deleteTask(Long taskId, OidcUser oidcUser) throws ApiException {
 		Matcher matcher = pattern.matcher(Objects.requireNonNull(oidcUser.getAttribute("sub")));
-		if(!matcher.find()) {
+		if (!matcher.find()) {
 			throw new ApiException(HttpStatus.CONFLICT.value());
 		}
 
@@ -115,6 +114,7 @@ public class TaskService {
 		}
 	}
 
+	@SneakyThrows
 	public TaskResponse createTaskReminder(Long taskId, CreateReminderRequest reminderRequest) throws ApiException {
 		Optional<Task> existingTask = taskRepository.findTaskById(taskId);
 		if (existingTask.isPresent()) {
