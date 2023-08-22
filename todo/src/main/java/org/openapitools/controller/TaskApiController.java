@@ -66,9 +66,13 @@ public class TaskApiController implements TaskApi {
 	@RolesAllowed(OIDC_USER)
 	public ResponseEntity<TaskResponse> createTaskReminder(Long taskId, CreateReminderRequest reminderRequest) throws ApiException {
 		OAuth2AuthenticationToken token = (OAuth2AuthenticationToken) request.getUserPrincipal();
-		DefaultOidcUser oidcUser = (DefaultOidcUser) token.getPrincipal();
-		if (oidcUser.getSubject().contains("google")) {
-			return new ResponseEntity<>(taskService.createTaskReminder(taskId, reminderRequest), HttpStatus.OK);
+		if (token != null) {
+			DefaultOidcUser oidcUser = (DefaultOidcUser) token.getPrincipal();
+			if (oidcUser.getSubject().contains("google")) {
+				return new ResponseEntity<>(taskService.createTaskReminder(taskId, reminderRequest), HttpStatus.OK);
+			} else {
+				return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+			}
 		} else {
 			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 		}
