@@ -29,10 +29,12 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.context.request.NativeWebRequest;
 
 @Validated
@@ -58,11 +60,8 @@ public interface TaskApi {
 					})
 			}
 	)
-	@RequestMapping(
-			method = RequestMethod.GET,
-			value = "/task",
-			produces = {"application/json"}
-	)
+
+	@GetMapping(path = "/task")
 	default ResponseEntity<List<TaskResponse>> listTasks(@Parameter(name = "OidcUser", description = "", required = true) @Valid OidcUser oidcUser) {
 		getRequest().ifPresent(request -> {
 			for (MediaType mediaType : MediaType.parseMediaTypes(request.getHeader("Accept"))) {
@@ -99,11 +98,8 @@ public interface TaskApi {
 					@ApiResponse(responseCode = "404", description = "Resource not found")
 			}
 	)
-	@RequestMapping(
-			method = RequestMethod.GET,
-			value = "/task/{taskId}",
-			produces = {"application/json"}
-	)
+
+	@GetMapping(path = "/task/{taskId}")
 	default ResponseEntity<TaskResponse> getTask(
 			@Parameter(name = "taskId", description = "Task identifier", required = true, in = ParameterIn.PATH) @PathVariable("taskId") Long taskId,
 			@Parameter(name = "OidcUser", description = "", required = true) @Valid OidcUser oidcUser)
@@ -139,12 +135,8 @@ public interface TaskApi {
 					@ApiResponse(responseCode = "401", description = "Access token is missing or invalid")
 			}
 	)
-	@RequestMapping(
-			method = RequestMethod.POST,
-			value = "/task",
-			produces = {"application/json"},
-			consumes = {"application/json"}
-	)
+
+	@PostMapping(path = "/task")
 	default ResponseEntity<TaskResponse> createTask(
 			@Parameter(name = "TaskCreateRequest", description = "", required = true) @Valid @RequestBody TaskCreateRequest taskCreateRequest,
 			@Parameter(name = "OidcUser", description = "", required = true) @Valid OidcUser oidcUser)
@@ -177,12 +169,8 @@ public interface TaskApi {
 					@ApiResponse(responseCode = "404", description = "Resource not found")
 			}
 	)
-	@RequestMapping(
-			method = RequestMethod.PUT,
-			value = "/task/{taskId}",
-			produces = {"application/json"},
-			consumes = {"application/json"}
-	)
+
+	@PutMapping(path = "/task/{taskId}")
 	default ResponseEntity<TaskResponse> updateTask(
 			@Parameter(name = "taskId", description = "Task identifier", required = true, in = ParameterIn.PATH) @PathVariable("taskId") Long taskId,
 			@Parameter(name = "TaskUpdateRequest", description = "", required = true) @Valid @RequestBody TaskUpdateRequest taskUpdateRequest,
@@ -221,10 +209,8 @@ public interface TaskApi {
 					@ApiResponse(responseCode = "404", description = "Resource not found")
 			}
 	)
-	@RequestMapping(
-			method = RequestMethod.DELETE,
-			value = "/task/{taskId}"
-	)
+
+	@DeleteMapping(path = "/task/{taskId}")
 	default ResponseEntity<Void> deleteTask(
 			@Parameter(name = "taskId", description = "Task identifier", required = true, in = ParameterIn.PATH) @PathVariable("taskId") Long taskId,
 			@Parameter(name = "OidcUser", description = "", required = true) @Valid OidcUser oidcUser)
@@ -255,12 +241,8 @@ public interface TaskApi {
 					@ApiResponse(responseCode = "404", description = "Resource not found")
 			}
 	)
-	@RequestMapping(
-			method = RequestMethod.POST,
-			value = "/task/{taskId}/reminder",
-			produces = {"application/json"},
-			consumes = {"application/json"}
-	)
+
+	@PostMapping(path = "/task/{taskId}/reminder")
 	default ResponseEntity<TaskResponse> createTaskReminder(
 			@Parameter(name = "taskId", description = "Task identifier", required = true, in = ParameterIn.PATH) @PathVariable("taskId") Long taskId,
 			@Parameter(name = "CreateReminderRequest", required = true) @Valid @RequestBody CreateReminderRequest reminderRequest)

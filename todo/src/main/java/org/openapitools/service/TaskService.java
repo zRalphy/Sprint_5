@@ -4,13 +4,9 @@ import lombok.RequiredArgsConstructor;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -83,8 +79,7 @@ public class TaskService {
 		}
 	}
 
-	public TaskResponse updateTask(Long taskId, TaskUpdateRequest taskUpdateRequest, OidcUser oidcUser)
-			throws ApiException {
+	public TaskResponse updateTask(Long taskId, TaskUpdateRequest taskUpdateRequest, OidcUser oidcUser) throws ApiException {
 		String userId = oidcUser.getAttribute("sub");
 		boolean activeSubscription = isActiveSubscription(userId);
 
@@ -92,6 +87,32 @@ public class TaskService {
 			return updateTask(taskId, taskUpdateRequest, userId);
 		} else {
 			throw new ApiException(HttpStatus.FORBIDDEN.value());
+		}
+	}
+
+	public void deleteTask(Long taskId, OidcUser oidcUser) throws ApiException {
+		String userId = oidcUser.getAttribute("sub");
+		Optional<Task> existingTask = taskRepository.findTaskByUserIdAndId(userId, taskId);
+		if (existingTask.isPresent()) {
+			taskRepository.delete(existingTask.get());
+		} else {
+			throw new ApiException(HttpStatus.NOT_FOUND.value());
+		}
+	}
+
+	public TaskResponse createTaskReminder(Long taskId, CreateReminderRequest reminderRequest) throws ApiException {
+		Optional<Task> existingTask = taskRepository.findTaskById(taskId);
+		if (existingTask.isPresent()) {
+			try {
+				googleCalendarApiService.createReminder(existingTask.get().getName(), reminderRequest.getStartDateTime(), reminderRequest.getEndDateTime());
+			} catch (GeneralSecurityException | UnirestException e) {
+				throw new ApiException(HttpStatus.UNAUTHORIZED.value());
+			} catch (IOException e) {
+				throw new ApiException(HttpStatus.BAD_REQUEST.value());
+			}
+			return taskMapper.taskToTaskResponse(existingTask.get());
+		} else {
+			throw new ApiException(HttpStatus.NOT_FOUND.value());
 		}
 	}
 
@@ -123,32 +144,6 @@ public class TaskService {
 			existingTask.get()
 					.setCompleted(taskUpdateRequest.getIsCompleted() != null ? taskUpdateRequest.getIsCompleted() : existingTask.get().isCompleted());
 			taskRepository.saveAndFlush(existingTask.get());
-			return taskMapper.taskToTaskResponse(existingTask.get());
-		} else {
-			throw new ApiException(HttpStatus.NOT_FOUND.value());
-		}
-	}
-
-	public void deleteTask(Long taskId, OidcUser oidcUser) throws ApiException {
-		String userId = oidcUser.getAttribute("sub");
-		Optional<Task> existingTask = taskRepository.findTaskByUserIdAndId(userId, taskId);
-		if (existingTask.isPresent()) {
-			taskRepository.delete(existingTask.get());
-		} else {
-			throw new ApiException(HttpStatus.NOT_FOUND.value());
-		}
-	}
-
-	public TaskResponse createTaskReminder(Long taskId, CreateReminderRequest reminderRequest) throws ApiException {
-		Optional<Task> existingTask = taskRepository.findTaskById(taskId);
-		if (existingTask.isPresent()) {
-			try {
-				googleCalendarApiService.createReminder(existingTask.get().getName(), reminderRequest.getStartDateTime(), reminderRequest.getEndDateTime());
-			} catch (GeneralSecurityException | UnirestException e) {
-				throw new ApiException(HttpStatus.UNAUTHORIZED.value());
-			} catch (IOException e) {
-				throw new ApiException(HttpStatus.BAD_REQUEST.value());
-			}
 			return taskMapper.taskToTaskResponse(existingTask.get());
 		} else {
 			throw new ApiException(HttpStatus.NOT_FOUND.value());

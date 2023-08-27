@@ -15,6 +15,7 @@ import static org.openapitools.controller.UserApiController.OIDC_USER;
 @Configuration
 @RequiredArgsConstructor
 public class WebSecurityConfig {
+	private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
 	@Bean
 	protected SecurityFilterChain configure(HttpSecurity http) throws Exception {
@@ -31,6 +32,7 @@ public class WebSecurityConfig {
 				.anyRequest().authenticated()
 				.and()
 				.oauth2Login()
+				.successHandler(oAuth2SuccessHandler)
 				.and()
 				.build();
 	}
