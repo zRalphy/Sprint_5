@@ -9,8 +9,8 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface TaskRepository extends JpaRepository<Task, Long> {
-	List<Task> findAllTaskByUserId(long userId);
-	Optional<Task> findTaskByUserIdAndId(long userId, long taskId);
-	Optional<Task> findTaskByNameAndUserId(String name, long userId);
+	List<Task> findAllTaskByUserId(String userId);
+	Optional<Task> findTaskByUserIdAndId(String userId, long taskId);
+	Optional<Task> findTaskByNameAndUserId(String name, String userId);
 	Optional<Task> findTaskById(long taskId);
 }
