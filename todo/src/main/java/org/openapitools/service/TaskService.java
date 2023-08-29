@@ -119,21 +119,11 @@ public class TaskService {
 	private boolean isActiveSubscription(String userId) {
 		boolean activeSubscription;
 		try {
-			activeSubscription = subscriptionService.checkSubscription(userId, getAccessToken());
+			activeSubscription = subscriptionService.checkSubscription(userId);
 		} catch (UnirestException | JsonProcessingException e) {
 			activeSubscription = false;
 		}
 		return activeSubscription;
-	}
-
-	private String getAccessToken() throws UnirestException, JsonProcessingException {
-		HttpResponse<String> response = Unirest.post("https://dev-euttml4xgjmuyxo0.eu.auth0.com/oauth/token")
-				.header("content-type", "application/json")
-				.body(String.format(
-						"{\"client_id\":\"%s\",\"client_secret\":\"%s\",\"audience\":\"%s\",\"grant_type\":\"client_credentials\"}",
-						clientId, clientSecret, audience))
-				.asString();
-		return (String) new ObjectMapper().readValue(response.getBody(), Map.class).get("access_token");
 	}
 
 	private TaskResponse updateTask(Long taskId, TaskUpdateRequest taskUpdateRequest, String userId) throws ApiException {

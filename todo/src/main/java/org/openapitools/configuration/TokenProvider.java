@@ -10,13 +10,14 @@ import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.util.Pair;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.stereotype.Component;
 
 @Component
 public class TokenProvider {
+	public static final String LOGGING_COUNT = "logins_count";
+
 	private @Value("${client-id}")
 	String clientId;
 	private @Value("${client-secret}")
@@ -24,7 +25,7 @@ public class TokenProvider {
 	private @Value("${audience}")
 	String audience;
 
-	public Pair<String, HttpResponse<JsonNode>> getToken(Authentication authentication) throws UnirestException, JsonProcessingException {
+	public int getLoggingCount(Authentication authentication) throws UnirestException, JsonProcessingException {
 		DefaultOidcUser user = (DefaultOidcUser) authentication.getPrincipal();
 		HttpResponse<String> response = Unirest.post("https://dev-euttml4xgjmuyxo0.eu.auth0.com/oauth/token")
 				.header("content-type", "application/json")
@@ -39,6 +40,6 @@ public class TokenProvider {
 						"https://dev-euttml4xgjmuyxo0.eu.auth0.com/api/v2/users/" + user.getSubject())
 				.header("authorization", "Bearer " + token).asJson();
 
-		return Pair.of(token, responseObject);
+		return responseObject.getBody().getObject().getInt(LOGGING_COUNT);
 	}
 }
