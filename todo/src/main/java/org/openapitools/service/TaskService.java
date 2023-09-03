@@ -1,13 +1,13 @@
 package org.openapitools.service;
 
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.List;
 import java.util.Optional;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
 import org.openapitools.api.ApiException;
@@ -28,12 +28,12 @@ public class TaskService {
 	private final TaskRepository taskRepository;
 	private final TaskMapper taskMapper;
 	private final GoogleCalendarApiService googleCalendarApiService;
+	private final SubscriptionService subscriptionService;
 
 	public List<TaskResponse> getAllTasksByUserId(OidcUser oidcUser) {
 		String userId = oidcUser.getAttribute("sub");
 		List<Task> taskList = taskRepository.findAllTaskByUserId(userId);
 		return taskMapper.listTaskToListTaskResponse(taskList);
-
 	}
 
 	public TaskResponse getTaskByUserIdAndTaskId(Long taskId, OidcUser oidcUser) throws ApiException {
@@ -47,32 +47,34 @@ public class TaskService {
 
 	public TaskResponse createTask(TaskCreateRequest taskCreateRequest, OidcUser oidcUser) throws ApiException {
 		String userId = oidcUser.getAttribute("sub");
-		Optional<Task> existingTask = taskRepository.findTaskByNameAndUserId(taskCreateRequest.getName(), userId);
-		if (existingTask.isEmpty()) {
-			Task task = new Task();
-			task.setName(taskCreateRequest.getName());
-			task.setUserId(userId);
-			task.setDueDate(taskCreateRequest.getDueDate());
-			task.setCompleted(false);
-			taskRepository.saveAndFlush(task);
-			return taskMapper.taskToTaskResponse(task);
+		boolean activeSubscription = isActiveSubscription(userId);
+
+		if (activeSubscription) {
+			Optional<Task> existingTask = taskRepository.findTaskByNameAndUserId(taskCreateRequest.getName(), userId);
+			if (existingTask.isEmpty()) {
+				Task task = new Task();
+				task.setName(taskCreateRequest.getName());
+				task.setUserId(userId);
+				task.setDueDate(taskCreateRequest.getDueDate());
+				task.setCompleted(false);
+				taskRepository.saveAndFlush(task);
+				return taskMapper.taskToTaskResponse(task);
+			} else {
+				throw new ApiException(HttpStatus.CONFLICT.value());
+			}
 		} else {
-			throw new ApiException(HttpStatus.CONFLICT.value());
+			throw new ApiException(HttpStatus.FORBIDDEN.value());
 		}
 	}
 
 	public TaskResponse updateTask(Long taskId, TaskUpdateRequest taskUpdateRequest, OidcUser oidcUser) throws ApiException {
 		String userId = oidcUser.getAttribute("sub");
-		Optional<Task> existingTask = taskRepository.findTaskByUserIdAndId(userId, taskId);
-		if (existingTask.isPresent()) {
-			existingTask.get().setName(taskUpdateRequest.getName() != null ? taskUpdateRequest.getName() : existingTask.get().getName());
-			existingTask.get().setDueDate(taskUpdateRequest.getDueDate() != null ? taskUpdateRequest.getDueDate() : existingTask.get().getDueDate());
-			existingTask.get()
-					.setCompleted(taskUpdateRequest.getIsCompleted() != null ? taskUpdateRequest.getIsCompleted() : existingTask.get().isCompleted());
-			taskRepository.saveAndFlush(existingTask.get());
-			return taskMapper.taskToTaskResponse(existingTask.get());
+		boolean activeSubscription = isActiveSubscription(userId);
+
+		if (activeSubscription) {
+			return updateTask(taskId, taskUpdateRequest, userId);
 		} else {
-			throw new ApiException(HttpStatus.NOT_FOUND.value());
+			throw new ApiException(HttpStatus.FORBIDDEN.value());
 		}
 	}
 
@@ -86,7 +88,6 @@ public class TaskService {
 		}
 	}
 
-
 	public TaskResponse createTaskReminder(Long taskId, CreateReminderRequest reminderRequest) throws ApiException {
 		Optional<Task> existingTask = taskRepository.findTaskById(taskId);
 		if (existingTask.isPresent()) {
@@ -97,6 +98,30 @@ public class TaskService {
 			} catch (IOException e) {
 				throw new ApiException(HttpStatus.BAD_REQUEST.value());
 			}
+			return taskMapper.taskToTaskResponse(existingTask.get());
+		} else {
+			throw new ApiException(HttpStatus.NOT_FOUND.value());
+		}
+	}
+
+	private boolean isActiveSubscription(String userId) {
+		boolean activeSubscription;
+		try {
+			activeSubscription = subscriptionService.checkSubscription(userId);
+		} catch (UnirestException | JsonProcessingException e) {
+			activeSubscription = false;
+		}
+		return activeSubscription;
+	}
+
+	private TaskResponse updateTask(Long taskId, TaskUpdateRequest taskUpdateRequest, String userId) throws ApiException {
+		Optional<Task> existingTask = taskRepository.findTaskByUserIdAndId(userId, taskId);
+		if (existingTask.isPresent()) {
+			existingTask.get().setName(taskUpdateRequest.getName() != null ? taskUpdateRequest.getName() : existingTask.get().getName());
+			existingTask.get().setDueDate(taskUpdateRequest.getDueDate() != null ? taskUpdateRequest.getDueDate() : existingTask.get().getDueDate());
+			existingTask.get()
+					.setCompleted(taskUpdateRequest.getIsCompleted() != null ? taskUpdateRequest.getIsCompleted() : existingTask.get().isCompleted());
+			taskRepository.saveAndFlush(existingTask.get());
 			return taskMapper.taskToTaskResponse(existingTask.get());
 		} else {
 			throw new ApiException(HttpStatus.NOT_FOUND.value());
