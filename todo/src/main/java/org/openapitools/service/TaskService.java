@@ -5,13 +5,9 @@ import lombok.RequiredArgsConstructor;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mashape.unirest.http.HttpResponse;
-import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
 import org.openapitools.api.ApiException;
@@ -22,7 +18,6 @@ import org.openapitools.model.dto.TaskUpdateRequest;
 import org.openapitools.model.entity.Task;
 import org.openapitools.model.mapper.TaskMapper;
 import org.openapitools.repository.TaskRepository;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Service;
@@ -34,13 +29,6 @@ public class TaskService {
 	private final TaskMapper taskMapper;
 	private final GoogleCalendarApiService googleCalendarApiService;
 	private final SubscriptionService subscriptionService;
-
-	private @Value("${client-id}")
-	String clientId;
-	private @Value("${client-secret}")
-	String clientSecret;
-	private @Value("${audience}")
-	String audience;
 
 	public List<TaskResponse> getAllTasksByUserId(OidcUser oidcUser) {
 		String userId = oidcUser.getAttribute("sub");

@@ -4,10 +4,8 @@ import lombok.RequiredArgsConstructor;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
@@ -20,6 +18,7 @@ import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
+import org.openapitools.configuration.TokenProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -28,10 +27,15 @@ import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.stereotype.Service;
 
+import static org.openapitools.configuration.TokenProvider.ACCESS_TOKEN;
+import static org.openapitools.configuration.TokenProvider.AUTHORIZATION_HEADER;
+import static org.openapitools.configuration.TokenProvider.BEARER;
+
 @Service
 @RequiredArgsConstructor
 public class GoogleCalendarApiService {
 	private final OAuth2AuthorizedClientService oAuth2AuthorizedClientService;
+	private final TokenProvider tokenProvider;
 
 	private @Value("${client-id}")
 	String clientId;
@@ -39,6 +43,8 @@ public class GoogleCalendarApiService {
 	String clientSecret;
 	private @Value("${audience}")
 	String audience;
+	private @Value("${user-url}")
+	String userUrl;
 
 	public void createReminder(String task, String startDate, String endDate) throws IOException, GeneralSecurityException, UnirestException {
 		String token = getIDPAccessToken(getClientData());
@@ -72,19 +78,9 @@ public class GoogleCalendarApiService {
 	}
 
 	private String getIDPAccessToken(String userId) throws UnirestException, JsonProcessingException {
-		HttpResponse<String> response = Unirest.post("https://dev-euttml4xgjmuyxo0.eu.auth0.com/oauth/token")
-				.header("content-type", "application/json")
-				.body(String.format(
-						"{\"client_id\":\"%s\",\"client_secret\":\"%s\",\"audience\":\"%s\",\"grant_type\":\"client_credentials\"}",
-						clientId, clientSecret, audience))
-				.asString();
-
-		String token = (String) new ObjectMapper().readValue(response.getBody(), Map.class).get("access_token");
-
-		HttpResponse<JsonNode> responseObject = Unirest.get(
-						"https://dev-euttml4xgjmuyxo0.eu.auth0.com/api/v2/users/" + userId)
-				.header("authorization", "Bearer " + token).asJson();
-
-		return responseObject.getBody().getObject().getJSONArray("identities").getJSONObject(0).getString("access_token");
+		String token = tokenProvider.getAccessToken(clientId, clientSecret, audience);
+		HttpResponse<JsonNode> responseObject = Unirest.get(userUrl + userId)
+				.header(AUTHORIZATION_HEADER, BEARER + token).asJson();
+		return responseObject.getBody().getObject().getJSONArray("identities").getJSONObject(0).getString(ACCESS_TOKEN);
 	}
 }
