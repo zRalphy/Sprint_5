@@ -2,66 +2,56 @@ package org.openapitools.service;
 
 import lombok.RequiredArgsConstructor;
 
+import java.net.URI;
 import java.time.OffsetDateTime;
+import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
-import org.openapitools.configuration.TokenProvider;
+import org.openapitools.configuration.Auth0Config;
+import org.openapitools.configuration.Auth0Service;
 import org.openapitools.model.dto.SubscriptionDTO;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.util.UriComponentsBuilder;
 
-import static org.openapitools.configuration.TokenProvider.APPLICATION_JSON_FORMAT;
-import static org.openapitools.configuration.TokenProvider.AUTHORIZATION_HEADER;
-import static org.openapitools.configuration.TokenProvider.BEARER;
-import static org.openapitools.configuration.TokenProvider.CONTENT_TYPE_HEADER;
-import static org.openapitools.configuration.TokenProvider.SUBSCRIPTIONS_END_URL;
+import static org.openapitools.configuration.Auth0Service.APPLICATION_JSON_FORMAT;
+import static org.openapitools.configuration.Auth0Service.AUTHORIZATION_HEADER;
+import static org.openapitools.configuration.Auth0Service.BEARER;
+import static org.openapitools.configuration.Auth0Service.CONTENT_TYPE_HEADER;
+import static org.openapitools.configuration.Auth0Service.SUBSCRIPTIONS_END_URL;
 
 @Service
 @RequiredArgsConstructor
 public class SubscriptionService {
-	private final TokenProvider tokenProvider;
 
-	private @Value("${client-id}")
-	String clientId;
-	private @Value("${client-secret}")
-	String clientSecret;
-	private @Value("${subscription-audience}")
-	String subscriptionsAudience;
-	private @Value("${subscriptions-api-url}")
-	String baseSubscriptionsApiUrl;
+    private final Auth0Service auth0Service;
+    private final Auth0Config auth0Config;
 
-	public boolean checkSubscription(String userId) throws UnirestException, JsonProcessingException {
-		String token = tokenProvider.getAccessToken(clientId, clientSecret, subscriptionsAudience);
-		HttpResponse<String> response = Unirest.get(baseSubscriptionsApiUrl + userId + SUBSCRIPTIONS_END_URL)
-				.header(CONTENT_TYPE_HEADER, APPLICATION_JSON_FORMAT)
-				.header(AUTHORIZATION_HEADER, BEARER + token)
-				.asString();
+    public boolean checkSubscription(String userId) throws UnirestException, JsonProcessingException {
+        String token = auth0Service.getAccessToken(auth0Config.getSubscriptionApi().getUrl());
+        SubscriptionDTO subscription = Unirest.get(String.format(auth0Config.getSubscriptionApi().getUrl(), userId))
+                .header(CONTENT_TYPE_HEADER, APPLICATION_JSON_FORMAT)
+                .header(AUTHORIZATION_HEADER, BEARER + token)
+                .asObject(SubscriptionDTO.class)
+                .getBody();
+        return subscription.isActive(OffsetDateTime.now());
+    }
 
-		SubscriptionDTO subscription = new ObjectMapper().registerModule(new JavaTimeModule())
-				.readValue(response.getBody(), SubscriptionDTO.class);
-		return checkDates(subscription);
-	}
+    public void createSubscription(String userId) throws UnirestException, JsonProcessingException {
+        SubscriptionDTO subscriptionDTO = new SubscriptionDTO(OffsetDateTime.now(), OffsetDateTime.now().plusDays(7));
+        String token = auth0Service.getAccessToken(auth0Config.getSubscriptionApi().getUrl());
 
-	public void createSubscription(String userId) throws UnirestException, JsonProcessingException {
-		SubscriptionDTO subscriptionDTO = new SubscriptionDTO(OffsetDateTime.now(), OffsetDateTime.now().plusDays(7));
-		String body = new ObjectMapper().registerModule(new JavaTimeModule()).writeValueAsString(subscriptionDTO);
-		String token = tokenProvider.getAccessToken(clientId, clientSecret, subscriptionsAudience);
+        URI uri = UriComponentsBuilder.fromUriString(auth0Config.getSubscriptionApi().getUrl())
+                .build(Map.of("user_id", userId));
 
-		Unirest.post(baseSubscriptionsApiUrl + userId + SUBSCRIPTIONS_END_URL)
-				.header(CONTENT_TYPE_HEADER, APPLICATION_JSON_FORMAT)
-				.header(AUTHORIZATION_HEADER, BEARER + token)
-				.body(body)
-				.asJson();
-	}
+        Unirest.post(uri.toString())
+                .header(CONTENT_TYPE_HEADER, APPLICATION_JSON_FORMAT)
+                .header(AUTHORIZATION_HEADER, BEARER + token)
+                .body(subscriptionDTO)
+                .asJson();
+    }
 
-	private boolean checkDates(SubscriptionDTO subscription) {
-		return subscription.getStartDateTime().isBefore(OffsetDateTime.now()) &&
-				subscription.getEndDateTime().isAfter(OffsetDateTime.now());
-	}
+
 }

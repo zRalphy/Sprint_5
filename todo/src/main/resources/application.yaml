@@ -1,0 +1,10 @@
+auth0:
+  managementApi:
+    audience: https://dev-euttml4xgjmuyxo0.eu.auth0.com/api/v2/
+    url: https://dev-euttml4xgjmuyxo0.eu.auth0.com/api/v2/users/%s
+  subscriptionApi:
+    audience: https://subscriptions.com/api/v2/
+    url: http://localhost:9090/api/user/
+  tokenUrl: https://dev-euttml4xgjmuyxo0.eu.auth0.com/oauth/token
+  clientId: K5I47sYis4oP0YLjb91OvgGin3T3jbzI
+  clientSecret: Wcs_r6fIlYFC9cU_ezL2B0R0bEL3O31sxFNyFOFq_ue829k-9dWTbGz0H6OFrto2
